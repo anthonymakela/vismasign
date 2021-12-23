@@ -22,7 +22,11 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+To access the API you'll need the identifier and an api key from Visma. After recieving your credentials you can access the resources with
+
+```ruby
+client = Vismasign::Client.new(identifier: ENV["IDENTIFIER"], api_key: ENV["API_KEY"])
+```
 
 ## Development
 

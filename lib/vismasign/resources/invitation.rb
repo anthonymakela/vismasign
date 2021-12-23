@@ -1,7 +1,7 @@
 module Vismasign
   class InvitationResource < Resource
-    def status(invitation_id:)
-      Invitation.new get_request("/api/v1/invitation/#{invitation_id}").body
+    def create(attributes, document_id:)
+      authorized_post_request("/api/v1/document/#{document_id}/invitations", body: attributes).body
     end
   end
 end

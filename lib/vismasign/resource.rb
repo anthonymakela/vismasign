@@ -1,6 +1,7 @@
 require "time"
 require "digest/md5"
 require "base64"
+require "json"
 
 module Vismasign
   class Resource
@@ -10,29 +11,37 @@ module Vismasign
       @client = client
     end
 
-    def get_request(url, params: {}, headers: {})      
+    def authorized_get_request(url, params: {}, headers: {})      
       handle_response client.connection.get(url, params, authorization_header(url, "GET").merge(headers))
     end
 
-    def post_request(url, body:, headers: {})
-      handle_response client.connection.post(url, body, authorization_header(url, "POST", body.to_json).merge(headers))
+    def authorized_post_request(url, content_type = "json", body:, headers: {})
+      if content_type.eql?("json")
+        handle_response client.connection.post(url, body, authorization_header(url, "POST", body.to_json, content_type).merge(headers))
+      else
+        handle_response client.connection.post(url, body, authorization_header(url, "POST", body, content_type).merge(headers))
+      end      
     end
 
-    def authorization_header(path, http_verb, payload = "")
+    def get_request(url, params: {}, headers: {})      
+      handle_response client.connection.get(url, params, headers)
+    end
+
+    def authorization_header(path, http_verb, payload = "", content_type = "json")
       date = Time.now.rfc2822
       md5_file = Digest::MD5.digest(payload.encode)
       content_md5 = Base64.strict_encode64(md5_file)
       digest = OpenSSL::Digest.new("sha512")
       key = Base64.decode64(client.api_key)
-      authorization_header = [http_verb, content_md5, "application/json", date, path].join("\n")
+      authorization_header = [http_verb, content_md5, "application/#{content_type}", date, path].join("\n")
       authorization_header_enc = "Onnistuu " + client.identifier + ":" + Base64.strict_encode64(OpenSSL::HMAC.digest(digest, key, authorization_header.encode))
-      {"Content-MD5": content_md5, "Content-type": "application/json", Date: date, Authorization: authorization_header_enc}
+      {"Content-MD5": content_md5, "Content-type": "application/#{content_type}", Date: date, Authorization: authorization_header_enc}
     end
 
     def handle_response(response)
       case response.status
       when 400
-        raise Error, "Your request was malformed. #{response.body["error"]}"
+        raise Error, "Your request was malformed. #{response.body["error"]}, #{response.body["validation_errors"]}"
       when 401
         raise Error, "You did not supply valid authentication credentials. #{response.body["error"]}"
       when 403
