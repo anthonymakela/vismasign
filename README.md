@@ -1,8 +1,6 @@
-# Vismasign
+# Ruby gem for Visma Sign's API
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/vismasign`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Ruby gem to support digital signatures utilizing the services provided by Visma. The users of Visma Sign can sign documents with strong identification (local BankID/NemID codes) in Finland, Norway, Sweden and Denmark. The API is available globally, but signers need Finnish, Swedish, Danish or Norwegian banking or mobile authentication credentials.
 
 ## Installation
 
