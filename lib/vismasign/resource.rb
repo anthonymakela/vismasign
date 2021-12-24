@@ -29,13 +29,17 @@ module Vismasign
 
     def authorization_header(path, http_verb, payload = "", content_type = "json")
       date = Time.now.rfc2822
-      md5_file = Digest::MD5.digest(payload.encode)
+      if content_type.eql?("json")
+        md5_file = Digest::MD5.digest(payload.encode)
+      else
+        md5_file = Digest::MD5.digest(payload)
+      end
       content_md5 = Base64.strict_encode64(md5_file)
       digest = OpenSSL::Digest.new("sha512")
       key = Base64.decode64(client.api_key)
       authorization_header = [http_verb, content_md5, "application/#{content_type}", date, path].join("\n")
       authorization_header_enc = "Onnistuu " + client.identifier + ":" + Base64.strict_encode64(OpenSSL::HMAC.digest(digest, key, authorization_header.encode))
-      {"Content-MD5": content_md5, "Content-type": "application/#{content_type}", Date: date, Authorization: authorization_header_enc}
+      {"Content-MD5": content_md5, "Content-Type": "application/#{content_type}", Date: date, Authorization: authorization_header_enc}
     end
 
     def handle_response(response)
