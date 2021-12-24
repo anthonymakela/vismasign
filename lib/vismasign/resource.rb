@@ -15,11 +15,11 @@ module Vismasign
       handle_response client.connection.get(url, params, authorization_header(url, "GET").merge(headers))
     end
 
-    def authorized_post_request(url, content_type = "json", body:, headers: {})
+    def authorized_post_request(url, content_type: "json", body:, headers: {})
       if content_type.eql?("json")
-        handle_response client.connection.post(url, body, authorization_header(url, "POST", body.to_json, content_type).merge(headers))
+        handle_response client.connection.post(url, body, authorization_header(url, "POST", payload: body.to_json, content_type: content_type).merge(headers))
       else
-        handle_response client.connection.post(url, body, authorization_header(url, "POST", body, content_type).merge(headers))
+        handle_response client.connection.post(url, body, authorization_header(url, "POST", payload: body, content_type: content_type).merge(headers))
       end      
     end
 
@@ -27,7 +27,7 @@ module Vismasign
       handle_response client.connection.get(url, params, headers)
     end
 
-    def authorization_header(path, http_verb, payload = "", content_type = "json")
+    def authorization_header(path, http_verb, payload: "", content_type: "json")
       date = Time.now.rfc2822
       if content_type.eql?("json")
         md5_file = Digest::MD5.digest(payload.encode)

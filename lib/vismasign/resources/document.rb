@@ -7,7 +7,7 @@ module Vismasign
 
     def add_file(document_id:, file_url:)
       response = get_request(file_url)      
-      authorized_post_request("/api/v1/document/#{document_id}/files", "pdf", body: response.body)
+      authorized_post_request("/api/v1/document/#{document_id}/files", content_type: "pdf", body: response.body)
     end
 
     def retrieve(document_id:)
